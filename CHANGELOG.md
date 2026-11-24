@@ -11,7 +11,7 @@ All notable changes to the vehicle, code and documentation. Format inspired by K
 ## [2026-11] - Documentation restructure for WRO 2026
 ### Changed
 - README reorganised to follow the WRO 2026 Future Engineers documentation rubric.
-- New `docs/` folder: mobility, power & sensors, software, systems thinking, build & reproduce, test log.
+- New README sections: mobility torque/speed reasoning, power budget and calibration, software architecture, systems thinking, build & reproduce; `docs/test-log.md`.
 ### Fixed
 - Removed links to the previous (2025) repository; inconsistent battery capacity and motor-driver descriptions; broken table-of-contents anchors.
 

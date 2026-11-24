@@ -33,7 +33,7 @@ IDLE --(button)--> CALIBRATING --(4 s)--> STRAIGHT <--> TURNING --(3 laps)--> DO
 |---|---|
 | `config.py` | All tunable parameters (gains, thresholds, servo, motor). |
 | `control.py` | Pure logic: inner/outer loops, corners, lap counting, servo mapping. |
-| `motor_driver.py` | **Legacy** ROS node for the old external TB6612FNG driver. The car now uses the encoder motor through the RRC Lite; see docs/03. |
+| `motor_driver.py` | **Legacy** ROS node for the old external TB6612FNG driver. The car now uses the encoder motor through the RRC Lite; see the main README, section 8. |
 | `robot_node.py` | Main node: state machine tying both loops together. |
 
 ## Running

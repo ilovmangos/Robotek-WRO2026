@@ -24,16 +24,16 @@ We are Renkay, a team of three students participating at the 2026 World Robot Ol
 
 # 📮 Table of Contents
 1. [About the Competition](#1-about-the-competition)
-2. [Repository Structure and Documentation Map](#2-repository-structure-and-documentation-map)
+2. [Repository Structure](#2-repository-structure)
 3. [Meet the Team!](#3-meet-the-team)
 4. [Vehicle Overview](#4-vehicle-overview) — [Versions of the car](#versions-of-the-car)
 5. [System Setup](#5-system-setup) — ROS 2, Ubuntu, Raspberry Pi
-6. [Mobility Management](#6-mobility-management) — steering, motor and drivetrain, 3D parts → [full doc](docs/01-mobility-and-mechanical-design.md)
-7. [Power & Sense Management](#7-power--sense-management) — power, sensors, BOM, wiring → [full doc](docs/02-power-and-sensor-architecture.md)
-8. [Obstacle Management](#8-obstacle-management) — software, Open and Obstacle strategy → [full doc](docs/03-software-architecture-and-obstacle-strategy.md)
-9. [Systems Thinking and Engineering Decisions](#9-systems-thinking-and-engineering-decisions) → [full doc](docs/04-systems-thinking-and-engineering-decisions.md)
+6. [Mobility Management](#6-mobility-management) — steering, motor and drivetrain, 3D parts
+7. [Power & Sense Management](#7-power--sense-management) — power, sensors, BOM, wiring
+8. [Obstacle Management](#8-obstacle-management) — software, Open and Obstacle strategy
+9. [Systems Thinking and Engineering Decisions](#9-systems-thinking-and-engineering-decisions)
 10. [Assembly Instructions](#10-assembly-instructions)
-11. [Build, Run and Reproduce](#11-build-run-and-reproduce) → [full doc](docs/05-build-and-reproduce.md)
+11. [Build, Run and Reproduce](#11-build-run-and-reproduce)
 12. [Performance Videos](#12-performance-videos)
 
 ---
@@ -53,27 +53,19 @@ We participate in the **Future Engineers category**, designed for students aged 
 | <img width="450" alt="Open Challenge" src="https://github.com/user-attachments/assets/4a27ae44-db66-49ba-a908-089bac1b55ff"/> | <img width="450" alt="Obstacle Challenge" src="https://github.com/user-attachments/assets/05564ce7-e8b3-4ec2-8f6c-ba8a3d05d400"/>
 
 
-## 2. Repository Structure and Documentation Map
+## 2. Repository Structure
 
 | Folder / file | Content |
 |--------|---------|
-| [`docs`](docs) | Detailed documentation, one file per evaluation criterion + [test log](docs/test-log.md) |
 | [`src`](src) | ROS 2 code: [`open`](src/open) and [`obstacle`](src/obstacle) challenge nodes |
 | [`models`](models) | 3D-printed / laser-cut parts (STL + preview + notes) |
 | [`schemes`](schemes) | Wiring, power, ROS node diagrams and flowcharts |
 | [`t-photos`](t-photos) | Team photos (official and funny) |
 | [`v-photos`](v-photos) | Vehicle photos (6 sides, 3D renders, all versions) |
 | [`videos`](videos) | YouTube links, one per challenge |
+| [`docs`](docs) | Test log ([`test-log.md`](docs/test-log.md)) |
 | [`other`](other) | Extra documentation |
 | [`CHANGELOG.md`](CHANGELOG.md) | Release notes of the car, code and docs |
-
-| If you want to know about... | Read |
-|---|---|
-| Chassis, steering, motor, torque/speed | [docs/01](docs/01-mobility-and-mechanical-design.md) |
-| Power budget, sensors, calibration, wiring | [docs/02](docs/02-power-and-sensor-architecture.md) |
-| Code modules, state machine, algorithms | [docs/03](docs/03-software-architecture-and-obstacle-strategy.md) |
-| Why we chose each part, iterations, risks | [docs/04](docs/04-systems-thinking-and-engineering-decisions.md) |
-| How to rebuild and run the car | [docs/05](docs/05-build-and-reproduce.md) |
 
 ## 3. Meet the Team!
 
@@ -574,6 +566,88 @@ Below, you will find a table with our 3D-printed parts and their descriptions.
   </tbody>
 </table>
 
+---
+
+### Design goals and constraints
+
+| Constraint (WRO 2026 Game Rules) | Consequence for the design |
+|---|---|
+| Rule 11.1: vehicle must not exceed 300 x 200 mm footprint and 300 mm height | Compact single-level layout, 15 x 18 x 16 cm body (V10) |
+| Rule 11.2: weight must not exceed 1.5 kg | Light MDF base and printed housings; **[COMPLETAR: measured mass in g]** |
+| Rule 11.3: 4 wheels, one driving axle and one steering actuator; differential-drive bases are disqualified. Rule 11.4: no omnidirectional/ball-caster wheels | Ackermann front steering with one servo, rear axle driven |
+| Rules 11.5 / 11.13: no electronic differential with one motor per side; at most two driving motors, connected to the axle directly or through gears | One motor + gear train to a single rear axle |
+| Rules 9.10 / 9.11: only one switch turns the vehicle on, then it waits for a start signal | RRC Lite power switch + onboard user button (`/ros_robot_controller/button`) |
+| Track border distance is 1000 mm or 600 mm (+-100 mm) in the Open Challenge, always 1000 mm in the Obstacle Challenge; walls 10 cm high | LiDAR must sit at wall height (< 10 cm) and the car must turn inside a 600 mm corridor |
+| Parking lot: 20 cm wide, 1.5 x robot length long. Fully parked = inside the lot and parallel (distance of the two wheels on one side to the wall differs by <= 2 cm): 15 points; partly parked: 7 | Short wheelbase and large steering angle required |
+| Rounds last 3 minutes | Speed profile tuned for 3 laps well below that limit (28 s in Open at V10) |
+
+### Chassis
+
+* **Base:** laser-cut MDF plate designed in Fusion 360 with custom mounting holes for every component ([`models/vehicle_base`](models/vehicle_base)).
+* **Housings:** 3D-printed (PLA, upgraded to polycarbonate where strength was needed) for camera, Raspberry Pi, batteries and LiDAR ([`models`](models)).
+* **Why MDF instead of the original aluminium two-level chassis (V4-V6):** the aluminium stack was heavy and every change required un-assembling the whole car. MDF is cut in minutes, so we could iterate component positions between test sessions. See the iteration table in [04-engineering-decisions](#9-systems-thinking-and-engineering-decisions).
+* **Why single level (V7):** better airflow for the Raspberry Pi 5 and easier access to cables.
+
+### Steering - Ackermann
+
+| Item | Value |
+|---|---|
+| Mechanism | Ackermann linkage with bearings (HiWonder kit), adapted to our base |
+| Actuator | 15 kg·cm digital servo, mounted **vertically** (V8) |
+| Servo command | pulse width in µs; software limit 1000-2050 µs, centre 1500 µs ([`src/*/config.py`](src/)) |
+| Software steering limit | +-26 deg (obstacle) / +-29 deg (open) |
+| Wheelbase / track width | **[COMPLETAR]** mm / **[COMPLETAR]** mm |
+| Measured minimum turning radius | **[COMPLETAR]** m (measure with the car at full lock, centre of the rear axle) |
+
+### Drivetrain - torque and speed reasoning
+
+The car is driven by the **encoder gear-motor from the HiWonder kit**, connected to the **RRC Lite** controller (closed-loop speed control using the motor's Hall encoder). This replaces the previous external motor driver (L298N, then TB6612FNG) - see [Changelog](CHANGELOG.md).
+
+**Why we changed the driver for the kit's encoder channel**
+
+* With the L298N the car stalled below ~50 % duty (voltage drop across the bridge + friction + weight).
+* The TB6612FNG fixed the stalling (usable from ~35 %) but was still open-loop: the real speed depended on battery voltage and floor friction.
+* With the encoder the RRC Lite runs a PID on motor speed, so the commanded speed is repeatable between runs and while the battery discharges - the main requirement for repeatable lap times.
+
+**Speed estimate (fill in with the real wheel):**
+
+```
+v_max [m/s] = (rpm_motor / 60) * (1 / gear_ratio_ext) * pi * D_wheel
+```
+
+| Symbol | Meaning | Value |
+|---|---|---|
+| rpm_motor | no-load speed at 7.4 V (kit motor datasheet; coach's reference car uses 450 rpm) | **[VERIFICAR en la ficha del motor]** |
+| gear_ratio_ext | external gear stage motor -> rear axle (see V10: large gear on the motor shaft) | **[COMPLETAR]** (teeth ratio) |
+| D_wheel | printed wheel + rubber protector diameter | **[COMPLETAR]** mm |
+| v_max | theoretical top speed | **[COMPLETAR]** m/s |
+| v_measured | measured with a stopwatch on a 3 m straight, 3 runs | **[COMPLETAR]** m/s |
+
+**Measured performance we already have** (from our test logs, V9-V10): one lap in < 10 s and three laps in 28 s on the Open Challenge track; V9 needed 20 s per lap before the gear change.
+
+**Gear train trade-off (V9 -> V10):** swapping the small and big gear so that the *big gear is on the motor shaft* increased wheel speed (speed-up stage) and cut the 3-lap time. The price is torque at the wheel, which is acceptable because the car is light (**[COMPLETAR]** g) and the track is flat; the cost shows during low-speed manoeuvres, where we use a minimum duty cycle of ~35 %.
+
+**Stability fixes**
+
+* Custom 3D-printed spacers close the gap between the metal axle supports and the chassis -> less vibration and misalignment.
+* Grooved wheels + small cylinders between wheel and screws for traction (V9).
+* Slimmer front wheels (V8) so they do not stick out of the chassis outline.
+* All four wheels identical (V10) to simplify spares and behaviour.
+* Centre of gravity kept low: batteries are in a dedicated housing right above the chassis plate, Raspberry Pi above them.
+
+### Speed configuration (tested values)
+
+| Challenge | Cruise | Corner | Why |
+|---|---|---|---|
+| Open | see [`src/open/config.py`](src/open/config.py) (`MOTOR_CRUISE_PCT`, `MOTOR_TURN_PCT`) | slower | LiDAR (10 Hz) needs time to see the corner wall; 100 % made the car miss corners |
+| Obstacle | 35 % | 35 % | camera needs several frames to confirm colour before reaching the pillar |
+
+> Keep this table in sync with `config.py` - the judges can compare.
+
+### CAD files
+
+STL, preview and notes of every part: [`models/`](models). Fusion 360 source files: **[COMPLETAR - subir los .f3d/.step a `models/cad/`]**.
+
 ## 7. Power & Sense Management 
 
 ### <ins>**Power Source**</ins>
@@ -647,7 +721,7 @@ The 2DOF Monocular Camera complements the LiDAR by adding visual perception. Thi
 
 > [!IMPORTANT]
 > **📍Placement:**
-> The camera is located in a special 3D mounting piece with a certain  inclination angle that points to the floor so it can better detect obstacles. At first it was placed at the front of the car but this location provided a limited vision and sticked out of the chassis lenght. See more detailed info of the housing piece in the [`3D Printed Parts`](#3d-printed-parts) section. <br><br> 
+> The camera is located in a special 3D mounting piece with a certain  inclination angle that points to the floor so it can better detect obstacles. At first it was placed at the front of the car but this location provided a limited vision and sticked out of the chassis lenght. See more detailed info of the housing piece in the [`3D Printed Parts`](#3d-pieces) section. <br><br> 
 > <img width="1206"  src="https://github.com/user-attachments/assets/a286367c-681d-473b-807f-c9e470b2fb0d">
 
 ### **<ins>BOM (Bill of Materials)</ins>**
@@ -720,6 +794,87 @@ This is also a diagram that shows the **electrical wiring** and pin-level connec
 > [!NOTE]
 > Visit our [`schemes`](schemes) folder to access all of our diagrams and schemes 🔑🚗
 
+---
+
+### Power architecture
+
+```
+ Li-Po 7.4 V (2S) ──► RRC Lite controller ──┬─► 5 V rail ─► Raspberry Pi 5 (USB-C / GPIO power)
+                          │  (power switch,  ├─► servo (Ackermann)
+                          │   battery monitor)└─► USB sensors (LiDAR adapter, camera) via the Pi
+                          └─► motor port ──► encoder gear-motor (7.4 V, closed-loop PID on encoder)
+                          └─► WS2812 ring (5 V, **[COMPLETAR: pin/source]**)
+```
+
+* **One battery, two protected paths:** the electronics rail is regulated by the RRC Lite; the motor port is driven from battery voltage, so motor current spikes do not directly load the 5 V rail of the Raspberry Pi.
+* The RRC Lite reports battery voltage (topic `/rrc/battery`), which we read before every run: >= 8.0 V = charged 2S pack, otherwise we change battery.
+
+> **Consistency note for judges:** the previous repository mentioned an external L298N / TB6612FNG motor driver. The current car **does not use an external driver**; it uses the encoder motor channel of the HiWonder RRC Lite.
+
+#### Power budget
+
+Fill the "Measured" column with a USB power meter / bench supply. "Datasheet" values are only a starting point.
+
+| Consumer | Voltage | Typical (datasheet / estimate) | Peak | Measured |
+|---|---|---|---|---|
+| Raspberry Pi 5 (ROS 2 + OpenCV) | 5 V | ~5 W (coach's reference: 4.6 W with camera on, 3.8 W off) | up to ~12 W with USB peripherals | **[COMPLETAR]** |
+| STL-19P LiDAR | 5 V | **[COMPLETAR]** | | **[COMPLETAR]** |
+| Camera (USB / CSI) | 5 V | **[COMPLETAR]** | | **[COMPLETAR]** |
+| 15 kg·cm servo | 5 V | idle low, high when stalled | **[COMPLETAR]** A at stall | **[COMPLETAR]** |
+| WS2812 16-LED ring | 5 V | up to 16 x 60 mA = 0.96 A at full white | | **[COMPLETAR]** (we run it at reduced brightness: **[COMPLETAR]** %) |
+| Drive motor | 7.4 V | **[COMPLETAR]** A running | **[COMPLETAR]** A stall | **[COMPLETAR]** |
+
+**Battery runtime estimate:** `t [h] = C [Ah] x 0.8 / I_total [A]`, with C = **[COMPLETAR: 2000 or 5000 mAh - the old README listed both; keep the one actually installed]**. A full run (open or obstacle, 3 laps + parking) lasts < 2 min, so a single charge gives **[COMPLETAR]** runs.
+
+#### Failure points and mitigation
+
+| Risk | Effect | Mitigation |
+|---|---|---|
+| Battery voltage sag under motor load | Pi brown-out / reboot | Separate motor path; check `/rrc/battery` >= 8.0 V before starting; swap packs between runs |
+| Loose USB/servo connector after a crash | Sensor dropout mid-run | Strain-relief on cables, zip-ties; **sensor time-outs** in code (`IMU_TIMEOUT_S` = 0.20 s, `LIDAR_TIMEOUT_S` = 0.35 s) stop the car if data stop arriving |
+| Motor command lost | Car keeps driving | Watchdog (`WATCHDOG_S` = 0.05 s) cuts motor and centres the servo |
+| Pi thermal throttling | Lower frame rate | Single-level layout for airflow (V7); **[COMPLETAR]** heatsink/fan |
+| Over-discharge of Li-Po | Battery damage | Low-voltage alarm from RRC Lite buzzer |
+
+### Sensors - selection and trade-offs
+
+| Sensor | Role | Why this one | Alternatives we tested and why we left them |
+|---|---|---|---|
+| **STL-19P ToF LiDAR** | Wall distance, wall angle, corner detection | 360 deg, 5-13 Hz, 0.03-12 m, ROS 2 driver provided by the manufacturer | **Infrared (V2-V3):** single direction, noisy under room light, short range; **ultrasonic:** wide beam, ghost echoes |
+| **Camera** (HiWonder monocular, 2-DOF) | Red/green pillar detection (HSV) | Colour is the only information that tells pillar sides apart | Webcam (V2-V3): auto-exposure and focus changes; replaced by the kit camera |
+| **IMU (inside RRC Lite)** | Heading by integrating the gyro (`/ros_robot_controller/imu_raw`, ~50 Hz) | Fast heading loop independent of the slower LiDAR (10 Hz); gives lap count and corner completion | Compass: disturbed by motors/steel; LiDAR-only heading: too slow and noisy |
+| **Motor encoder (Hall)** | Closed-loop speed in the RRC Lite | Repeatable speed regardless of battery level | External motor driver without feedback (L298N, TB6612FNG) |
+| **16-LED WS2812 ring** | Constant illumination for colour detection | Room lights changed HSV values between venues | Software white balance only: not enough |
+
+#### Placement justified with field geometry
+
+* **LiDAR height.** Walls are **10 cm** high. In V4-V5 the LiDAR was above the walls, so it "saw over" them and detected the room. In V6 we changed the wheels to lower the LiDAR; in V8 we added a small tilted mount; in V10 we removed the housing and tested vision only; in **V11 it is mounted at the front, right under the chassis plate**, which improved wall detection the most. Final height above the floor: **[COMPLETAR]** cm (must be < 10 cm minus beam half-width).
+* **LiDAR rays used.** Front (180 deg), left (240 deg), right (120 deg) windows of +-10 deg (median to reject noise), plus a 60 deg and a 30 deg ray on the followed wall; two points define a line and give wall **distance and angle** even when the car is not parallel.
+* **Camera.** Tilted down towards the floor, behind the LiDAR housing, so pillars (10 cm tall, 5 x 5 cm) stay in the frame while the car approaches. At the front it stuck out of the chassis and had a limited view.
+* **Why the LiDAR window is 10 deg:** on the 1 m wide track at 0.18 m from the wall, a +-10 deg window covers about **[COMPLETAR]** cm of wall, enough samples at 10 Hz for a stable median.
+
+#### Calibration procedure
+
+1. **Gyroscope bias** (every run): robot still for 4 s (`GYRO_CAL_S`), average `gz` -> subtract from every sample. Without it a 0.5 deg/s bias would add 15 deg of error over 30 s.
+2. **Servo centre and gains:** command 1500 µs, measure straight-line drift over 3 m, adjust `SERVO_CENTER_US`; measure the angle reached at +-X µs to compute `SERVO_GAIN_POS/NEG` (left/right are different, see [mechanical design](#6-mobility-management)).
+3. **Gyro sign / servo sign:** if the car steers the wrong way, flip `GYRO_SIGN` or `SERVO_SIGN` before touching gains (documented at the top of `config.py`).
+4. **Camera HSV ranges:** for every venue run `color_vision.py` on a saved frame with the LED ring on; adjust `RED_*` / `GREEN_*` in `config.py`. Current values: red H 0-13 and 169-180, S >= 80; green H 53-89, S >= 25.
+5. **LiDAR orientation:** verify with `ros2 topic echo /scan` that index 180 deg is the front.
+
+### Wiring diagrams and pin table
+
+The diagrams are in the [Wiring Diagram](#wiring-diagram) section and in [`schemes/`](schemes). **[COMPLETAR - IMPORTANTE]** They were drawn for the car with the external driver and must be **redrawn** for the encoder motor on the RRC Lite (remove the driver, add the encoder lines).
+
+#### Pin / port table (to complete)
+
+| Device | Connected to | Signal |
+|---|---|---|
+| Drive motor + encoder | RRC Lite motor port **[COMPLETAR: M1-M4]** | motor power + Hall A/B |
+| Steering servo | RRC Lite servo port **[COMPLETAR]** | PWM 1000-2050 µs |
+| LiDAR | Raspberry Pi USB (through UART-USB adapter) | `/scan` |
+| Camera | Raspberry Pi USB **[COMPLETAR: or CSI]** | `/usb_cam/image_raw` |
+| RRC Lite | Raspberry Pi USB | IMU, button, buzzer, motor/servo commands |
+| WS2812 ring | **[COMPLETAR]** | 5 V, GND, data |
 
 ## 8. Obstacle Management 
 
@@ -734,7 +889,7 @@ This table better explains our ROS topics and messages:
 | **LiDAR Node**                          | Publisher          | `/scan`                        | `sensor_msgs/LaserScan`                                            | It sends 360° distance readings from the LiDAR; each value represents how far an obstacle is at a given angle.                                 |
 | **Camera Node**                         | Publisher          | `/obstaculos`                  | `std_msgs/String`                                                  | It publishes the detected obstacle color in a text form: (`rojo`, `verde`, or `ninguno`), which defines how the main controller adjusts the steering setpoint. |
 | **AckerLidar Node** *(Main Controller)* | Central Controller | `/motor_vel`, `/positionServo` | `std_msgs/Float32`, `ros_robot_controller_msgs/SetAckerServoState` | `/motor_vel`: Motor duty cycle (speed %). `/positionServo`: Steering position (PWM in µs) for Ackermann control.                            |
-| **Motor Node**                          | Subscriber         | `/motor_vel`                   | `std_msgs/Float32`                                                 | Legacy node for the old external driver. To be replaced by the RRC Lite motor command - see docs/03.             |
+| **Motor Node**                          | Subscriber         | `/motor_vel`                   | `std_msgs/Float32`                                                 | Legacy node for the old external driver. To be replaced by the RRC Lite motor command - see section 8.             |
 | **Raspberry Pi 5 Controller Node**      | Subscriber         | `/positionServo`               | `ros_robot_controller_msgs/SetAckerServoState`                     | Executes servo position commands and moves the front wheels to reach the target angle.                                                      |
 | **RRC Controller Button**               | Publisher          | `/button`                      | `ros_robot_controller_msgs/ButtonState`                            | Sends an activation signal when the onboard button is pressed, starting the robot’s control loop.                                           |
 
@@ -771,12 +926,8 @@ A **message type** is like a template that defines **what kind of data** is sent
 ---
 
 
-### **Software at a glance**
-
-Both challenges use the same cascade: the **LiDAR outer loop** (10 Hz) decides the target heading and the **IMU inner loop** (50 Hz) is the only one that writes to the steering servo. State machine: `IDLE -> CALIBRATING (4 s) -> FOLLOWING <-> TURNING -> DONE (3 laps)`. Corners are detected when the front wall is closer than a threshold and one side opens; laps are counted from 4 corners of 90 degrees. Full explanation, parameters, edge cases and test metrics: [docs/03](docs/03-software-architecture-and-obstacle-strategy.md).
-
 > [!WARNING]
-> **Status (to be updated before the final):** the motor command path in `src/*/robot_node.py` still publishes `/motor_vel` for the old driver node; it must publish to the RRC Lite motor command. Parallel parking is not part of the Obstacle state machine yet. See "Known limitations" in docs/03.
+> **Status (to be updated before the final):** the motor command path in `src/*/robot_node.py` still publishes `/motor_vel` for the old driver node; it must publish to the RRC Lite motor command. Parallel parking is not part of the Obstacle state machine yet. See "Known limitations" in section 8.
 
 ### <ins>**Open Challenge**</ins>
 
@@ -878,23 +1029,194 @@ During the Open Challenge, three ROS2 nodes work together in real time:
 
 
 <br><br>
+
+---
+
+### Software stack
+
+| Layer | Technology |
+|---|---|
+| OS | Ubuntu 24.04 on Raspberry Pi 5 |
+| Middleware | ROS 2 Jazzy (nodes + topics) |
+| Language / libs | Python 3, `rclpy`, OpenCV + `cv_bridge`, `lgpio` (legacy driver only) |
+| Vendor package | HiWonder `ros_robot_controller` / `ros_robot_controller_msgs` (IMU, servo, button, buzzer, motor) |
+| LiDAR driver | manufacturer ROS 2 package for the STL-19P (`/scan`) |
+
+### Module structure
+
+Both challenges share the same layered design. **`control.py` has no ROS imports**: it is pure logic, so it can be unit-tested on a laptop without the robot.
+
+| Module | Open | Obstacle | Responsibility |
+|---|:-:|:-:|---|
+| `config.py` | yes | yes | One dataclass with every tunable value (gains, thresholds, HSV ranges, speeds, servo mapping) |
+| `control.py` | yes | yes | `InnerLoop` (gyro heading -> steering), `OuterLoop` (Open: LiDAR centering), `estimate_wall` / `wall_follow_offset` (Obstacle), `Corner`, `detect_corner`, `start_turn`, `turn_complete`, `LapCounter`, `delta_to_us` (angle -> servo µs) |
+| `color_vision.py` | - | yes | HSV red / green block detector (`detect_block`) |
+| `robot_node.py` | yes | yes | ROS 2 node: subscriptions, state machine, publishers, watchdog |
+| `motor_driver.py` | legacy | legacy | **Obsolete.** Drove an external TB6612FNG. The car now commands the kit's encoder motor through the RRC Lite (see [changelog](CHANGELOG.md)) |
+
+#### ROS 2 graph
+
+| Node / source | Topic | Type | Direction |
+|---|---|---|---|
+| LiDAR driver | `/scan` | `sensor_msgs/LaserScan` | -> robot node (~10 Hz) |
+| RRC Lite | `/ros_robot_controller/imu_raw` | `sensor_msgs/Imu` | -> robot node (~50 Hz) |
+| RRC Lite | `/ros_robot_controller/button` | `ButtonState` | -> robot node (start/stop) |
+| Camera driver | `/usb_cam/image_raw` | `sensor_msgs/Image` | -> robot node (Obstacle) |
+| Robot node | `/ros_robot_controller/acker_servo/set_state` | `SetAckerServoState` | -> servo |
+| Robot node | `/ros_robot_controller/set_buzzer` | `BuzzerState` | -> buzzer feedback |
+| Robot node | `/motor_vel` | `std_msgs/Float32` (0-100 %) | -> motor |
+
+> **[COMPLETAR - motor command path]** `/motor_vel` is read by the old `motor_driver.py`. With the encoder motor, the robot node must publish speed to the RRC Lite motor topic instead (the coach's reference car uses `/rrc/set_motor`, with a sign convention where negative rps is forward). Update `send_motor()` in both `robot_node.py` files, delete the legacy driver, and update this table. Diagram: [`schemes/ROS Node Diagram (1).png`](schemes/ROS%20Node%20Diagram%20(1).png).
+
+### Control architecture - why cascade LiDAR + IMU
+
+```
+ LiDAR (10 Hz) ──► WHERE to go: target heading theta_ref  ──┐
+                                                            ▼
+ IMU gyro (50 Hz) ─► integrate -> theta ─► PD on (theta_ref - theta) ─► steering angle ─► servo µs
+```
+
+| Choice | Reason (data) |
+|---|---|
+| **Inner loop on gyro heading** | LiDAR updates at only ~10 Hz; at 0.5 m/s that is 5 cm between updates, too slow to steer smoothly. The gyro gives 50 Hz heading. The D term uses the gyro rate directly (no numerical derivative, no noise amplification): `delta = KP_IN * (theta_ref - theta) - KD_IN * gz`. |
+| **Outer loop on LiDAR** | The gyro drifts; LiDAR gives absolute position relative to walls and corrects the reference heading. |
+| **Gyro bias calibration at start (4 s)** | Removes constant drift before integrating. |
+| **Reference clamp** (`THETA_REF_MAX_DEG` 9 deg Open, `FOLLOW_MAX_DEG` 7 deg Obstacle) | Never ask for a large heading change from a noisy LiDAR reading. |
+| **Median over +-10 deg windows** (`window_median`) | Rejects spikes and single-ray dropouts. |
+| **Servo command passed through an `atan` shaped distance term** (Obstacle) | Distance error is converted to a heading with `atan(LATERAL_GAIN * err)`, so a large error cannot demand an unbounded angle. |
+
+#### Parameters (current values; see `config.py`)
+
+| Parameter | Open | Obstacle |
+|---|---|---|
+| Inner loop `KP_IN` / `KD_IN` | 1.6 / 0.28 | 1.8 / 0.22 |
+| Outer loop `KP_OUT` / `KD_OUT` | 27 / 4.5 | (wall follower: `LATERAL_GAIN` 1.5, target 0.18 m) |
+| Steering limit | 29 deg | 26 deg |
+| Corner trigger (front wall) | 0.80 m | 0.65 m |
+| Side opening threshold | 1.8 m | 1.2 m |
+| Motor cruise / turn | 75 % / 42 % (**the README says 70 % - reconcile**) | 35 % / 35 % |
+
+### State machine
+
+```
+IDLE --(button)--> CALIBRATING --(4 s, car still)--> FOLLOWING <--> TURNING --(3 laps)--> DONE
+  ▲                                                                                        │
+  └──────────────────────────────(button pressed while driving = emergency stop)───────────┘
+```
+
+| State | Entry | What happens | Exit |
+|---|---|---|---|
+| IDLE | power-up or stop | motor 0, servo centred | button |
+| CALIBRATING | button | average gyro Z for `GYRO_CAL_S` = 4 s -> bias; reset heading, laps, corners | 4 s elapsed |
+| FOLLOWING (Open: STRAIGHT) | calibration done | outer loop (Open) or wall follower + colour logic (Obstacle) sets `theta_ref`; inner loop steers | corner detected |
+| TURNING | `detect_corner` true | `theta_ref` = base heading +-90 deg; slower speed; inner loop performs the turn | `turn_complete` (heading reached and `gz` < 20 deg/s) or timeout 3.3 s |
+| DONE | `LapCounter` reaches `MAX_LAPS` = 3 | motor 0, servo centred, buzzer | button |
+
+**Rationale.** A state machine keeps the corner behaviour from fighting the straight-line controller: while TURNING the wall-follower output is ignored, so it cannot fight the 90 deg heading change. A **cool-down** of 1.5 s after each corner (`CORNER_COOLDOWN_S`) prevents the same corner from being detected twice.
+
+#### Lap counting
+Corners are 90 deg each; integrated yaw reaches 360 deg after 4 corners = 1 lap. `LAP_MARGIN_DEG` = 10 deg tolerates integration error. Each corner re-bases the reference heading (`heading_base_deg`), so the controller always works with a small relative angle. **[VERIFICAR con el código si el conteo de vueltas se resetea en cada esquina]**.
+
+#### Corner detection (edge cases handled)
+* Corner = **front wall closer than `CORNER_FRONT_M` AND one side open** (`SIDE_OPEN_M`). The open side also chooses the **turn direction**, so the robot works clockwise and counter-clockwise without a setting.
+* Ignored while already turning, during the cool-down, and if the heading is already too far from the base heading (`CORNER_MAX_THETA_REL_DEG`).
+* **Timeouts:** corner timeout 3.3 s; IMU 0.20 s and LiDAR 0.35 s data time-outs; 50 ms watchdog stops the motor.
+* Invalid wall estimates (angle > 55 deg, distance > 0.9 m, rays out of range) return "no wall" and the follower outputs 0 instead of a wrong correction.
+
+### Obstacle Challenge strategy
+
+1. **Wall to follow chosen by colour.** The camera finds the nearest block (`detect_block`): **red -> follow the right wall, green -> follow the left wall**. This gives the correct passing side (red pillar on the right, green on the left - rule 9.19) with a very simple rule. The colour must be seen in `CONFIRM_FRAMES` = 3 consecutive frames (avoids false triggers).
+2. **Wall geometry from two LiDAR rays** (60 deg and 30 deg from the front on the followed side): the two hit points define a line -> perpendicular distance and angle, valid even when the car is not parallel.
+3. **Distance target 0.18 m** from the followed wall. Heading request = wall angle + `atan(1.5 * (d - 0.18))`, clamped to +-7 deg.
+4. **Pillar nudge.** While a block is near (`base_norm` > 0.5), an extra heading (max 12 deg) steers away from the side of the image where it appears.
+5. **Corners and laps** identical to the Open Challenge.
+
+**HSV colour detection** ([`color_vision.py`](src/obstacle/color_vision.py)): red uses two hue ranges (0-13 and 169-180, S >= 80, V >= 50) because red wraps around the hue circle; green uses H 53-89. Mask is cleaned with a 7 px morphological kernel (2 iterations); a blob must have area >= 650 px, fill >= 0.42 and width/height <= 2.6 (shape of a 5 x 5 x 10 cm pillar, rejects walls and reflections). A WS2812 ring keeps illumination constant.
+
+#### Known limitations / pending work (be honest in the journal)
+| Item | Status | Action |
+|---|---|---|
+| **Parallel parking (15 pts)** | **Not in the current obstacle state machine** - it ends in DONE after 3 laps | Implement PARK state (coach's step-8 approach: align with the lot, reverse/arc manoeuvre, replan if not parked). Even the simple "parked partly" gives 7 pts |
+| Start from the parking lot (+7 pts) | not implemented | optional; **2026: only awarded if the car also completes at least one full lap** |
+| Motor path | still `/motor_vel` + legacy driver | switch to RRC Lite encoder motor command |
+| Cases the wall-follow logic cannot cover (e.g. pillar next to a corner, pillar in the inner lane after the corner) | **[COMPLETAR - list failures seen in tests]** | compare with the coach's "seat memory" idea |
+
+### Testing and tuning process, and metrics
+
+| Step | Method | Metric recorded |
+|---|---|---|
+| 1. Sensor sanity | `ros2 topic echo /scan`, `/ros_robot_controller/imu_raw`, `rqt_image_view` | correct axes/signs, rates (10 Hz / 50 Hz) |
+| 2. Sign check | small steer step, see which way the car goes | flip `GYRO_SIGN` / `SERVO_SIGN` first |
+| 3. Inner loop | hold a heading for 5 m | straight-line deviation (cm) |
+| 4. Outer loop / wall follow | run 1 lap on a mock field | mean distance error to target, oscillation amplitude |
+| 5. Full runs | 10 runs per direction (CW and CCW) | **success rate** (3 laps without wall touch), **lap time**, **number of wall touches** |
+| 6. Regression | change one parameter at a time, record in the test log | see [`docs/test-log.md`](docs/test-log.md) |
+
+Results we already have: V9 lap 20 s -> V10 28 s for 3 laps (< 10 s per lap). Full table of runs: **[COMPLETAR in `docs/test-log.md`]**.
+
+### How to read the code (60-second tour)
+
+1. `config.py` - all numbers.
+2. `control.py` - read `InnerLoop.delta` and `detect_corner` first.
+3. `robot_node.py` - `scan_callback` (outer loop and corner), `imu_callback` (the only place that writes the servo), `watchdog_callback` (safety).
+
 ## 9. Systems Thinking and Engineering Decisions
 
-Full version with risk register and iteration table: [docs/04](docs/04-systems-thinking-and-engineering-decisions.md).
+### How the subsystems work together
 
-**How the subsystems interact.** The LiDAR (10 Hz) tells the car *where* it is relative to the walls, the IMU (50 Hz) holds *how* it is pointing, the camera tells which side of a pillar to take, and the RRC Lite executes servo and speed commands. Speed is the coupling variable: the faster the car, the less the LiDAR and the camera see per metre, so speed is capped in each challenge.
+```
+            ┌────────────── Raspberry Pi 5 (Ubuntu 24.04 + ROS 2 Jazzy) ───────────────┐
+ LiDAR ───► │ /scan (10 Hz) ─► wall geometry, corner detection ─┐                         │
+ Camera ──► │ /usb_cam/image_raw ─► HSV block detector ─────────┼─► state machine ─► θ_ref │
+ RRC Lite ► │ IMU /imu_raw (50 Hz) ─► heading θ ────────────────┘        │                │
+            │                                inner PD loop ◄─────────────┘                │
+            └───────────┬─────────────────────────────┬──────────────────────────────────┘
+                        ▼ servo command (µs)          ▼ speed command
+                   Ackermann servo               encoder motor (RRC Lite closed loop)
+```
 
-| Decision | Chosen | Instead of | Why (test evidence) |
+| Interaction | Dependency / constraint |
+|---|---|
+| Speed <-> LiDAR | LiDAR scans at 10 Hz: the faster the car, the less it "sees" per metre. Open speed is capped (not 100 %) so corners are detected in time. |
+| Speed <-> camera | Pillar colour must be confirmed in 3 frames before the car reaches the pillar -> Obstacle speed is 35 %. |
+| LiDAR height <-> chassis/wheels | Walls are 10 cm; wheel diameter sets chassis height, which sets LiDAR height. A wheel change in V6 fixed missed walls. |
+| Lighting <-> camera | HSV thresholds depend on light; the LED ring makes them venue-independent. |
+| Battery voltage <-> motor speed | Open-loop drivers changed speed with battery level; encoder closed loop removes that dependency. |
+| Servo mounting <-> steering geometry <-> software | Mechanical left/right asymmetry is compensated by separate servo gains. |
+| Gyro drift <-> lap counting | Bias calibration at start and relative heading at every corner keep laps accurate. |
+
+### Constraints and trade-offs
+
+| Decision | Chosen | Rejected | Why (data / test) |
 |---|---|---|---|
-| Distance sensing | STL-19P LiDAR | infrared / ultrasonic | IR was noisy and single-direction (V2-V3) |
-| Heading | gyro integration + LiDAR correction | LiDAR only | LiDAR alone is too slow (10 Hz) to damp oscillations |
-| Chassis | laser-cut MDF, single level | aluminium two-level | weight, airflow, speed of modification |
-| Steering | HiWonder linkage + vertical servo | printed rack and pinion + stepper | imprecise teeth; vertical servo gave wider angle |
-| Motor control | **encoder motor via RRC Lite** | L298N, then TB6612FNG | L298N stalled below 50 %; TB6612FNG was still open loop |
-| LiDAR mount | front, under the chassis plate | on top / removed | on top it saw over the 10 cm walls |
-| Colour detection | HSV + LED ring | neural network | two colours, easy to tune at the venue, runs in ms |
+| Distance sensing | LiDAR STL-19P | Infrared, ultrasonic | IR gave noisy, single-direction values (V2-V3); LiDAR gives wall distance **and** angle in one scan |
+| Heading | Gyro integration (IMU in RRC Lite) | LiDAR-only heading | LiDAR 10 Hz is too slow to damp oscillations; gyro at 50 Hz is |
+| Computing | Raspberry Pi 5 + ROS 2 | Arduino Nano only | Needed OpenCV + LiDAR processing; ROS 2 splits the code into small testable nodes |
+| Colour logic | HSV thresholds | Neural network | Only two colours, fixed lighting; HSV runs in a few ms on the Pi and is easy to tune at the venue |
+| Chassis | Laser-cut MDF, single level | Aluminium two-level (V4-V6) | Weight, airflow, and the time needed to modify a part |
+| Steering | HiWonder linkage + vertical servo | 3D-printed rack and pinion + stepper | Printed teeth were imprecise and bulky; vertical servo gave wider angle and shorter chassis |
+| Motor control | **Encoder motor via RRC Lite** | L298N -> TB6612FNG | L298N stalled below 50 %; TB6612FNG fixed low-speed (35 %) but was open loop; encoder gives repeatable speed with the same hardware family (fewer parts and wires) |
+| LiDAR mount | Front, under the chassis plate (V11) | On top (V5-V9), none (V10) | On top the beam passed over 10 cm walls; no LiDAR gave worse corner detection; under the plate improved wall detection most |
+| Lighting | Added 16-LED ring | Software white balance | Room light changed detection results between sessions |
+| Housing material | PLA -> polycarbonate | PLA only | Crash resistance |
 
-**Main risks and mitigations:** colour misdetection (LED ring, 3-frame confirmation), gyro drift (4 s bias calibration), sensor dropouts (time-outs and watchdog stop the motor), low battery (voltage check before each run), mechanical looseness (pre-run checklist).
+### Risk register
+
+| # | Risk | Likelihood | Impact | Mitigation | Evidence |
+|---|---|---|---|---|---|
+| R1 | Colour misdetected under venue lighting | High | Wrong side of pillar (penalty) | LED ring, HSV calibration step at the venue, 3-frame confirmation | `CONFIRM_FRAMES`, section 2.2 |
+| R2 | LiDAR sees over walls / noise outside field | Medium | Wrong centering | Mount below 10 cm; median filters; range limits | V6, V11 |
+| R3 | Gyro drift | Medium | Wrong turn / lap count | Bias calibration; relative heading at corners | `GYRO_CAL_S` |
+| R4 | Sensor stops publishing | Low | Car drives blind | Time-outs and watchdog stop the motor | `IMU_TIMEOUT_S`, `WATCHDOG_S` |
+| R5 | Battery low | Medium | Reboot / slow car | Voltage check before each run; encoder closed loop | section 2.1 |
+| R6 | Mechanical looseness after crashes | Medium | Veering | Pre-run checklist in [05](#11-build-run-and-reproduce) | spacers V9 |
+| R7 | Parking not implemented / fails | High (today) | Up to 22 pts lost | Implement PARK state; fall back to "stop inside lot" | section 3.5 |
+| R8 | Different corridor width (600 vs 1000 mm) | Medium | Wrong centering | Outer loop is relative (D1-D2 = 0), thresholds checked on both widths | **[COMPLETAR: test on 600 mm]** |
+
+### Lessons learned
+* Change **one** variable per test and log it.
+* Most "software" problems in V4-V8 were actually **sensor placement** problems.
+* Replace a part only after measuring a failure (e.g. TB6612FNG after seeing the L298N stall at 50 %).
 
 ## 10. Assembly Instructions 
 
@@ -924,15 +1246,60 @@ Finally, install all electronic components, attaching them to their designated h
 <br><br>
 ## 11. Build, Run and Reproduce
 
-Full instructions: [docs/05](docs/05-build-and-reproduce.md).
+### Build and install
 
-1. **Build the car:** cut/print the parts in [`models`](models), assemble following section 10 and wire it following [`schemes`](schemes).
-2. **Prepare the Raspberry Pi 5:** Ubuntu 24.04, ROS 2 Jazzy, the HiWonder `ros_robot_controller` package and the STL-19P LiDAR driver (section 5).
-3. **Run:** launch LiDAR and camera drivers, then `python3 robot_node.py` from `src/open` or `src/obstacle`. Press the RRC Lite button: 4 s gyro calibration (car still), then the car drives; press again to stop.
-4. **Tune:** all parameters are in `config.py` of each challenge; every change is logged in [`docs/test-log.md`](docs/test-log.md).
-5. **Versions:** see [`CHANGELOG.md`](CHANGELOG.md).
+#### Mechanical
+1. Cut `models/vehicle_base` in 3 mm MDF (laser) **[COMPLETAR: thickness]** or print it.
+2. Print housings and wheels (PLA, 0.2 mm layer, no supports - see each `models/*/README.md`).
+3. Assemble Ackermann, motor/gear train and housings following [README - Assembly Instructions](#10-assembly-instructions).
+4. Wire following [`schemes/`](schemes) and the pin table in [02](#7-power--sense-management).
 
-> The code of each challenge is split in `config.py` (numbers), `control.py` (pure logic, no ROS), `color_vision.py` (camera, Obstacle only) and `robot_node.py` (ROS 2 node and state machine). Details in [docs/03](docs/03-software-architecture-and-obstacle-strategy.md).
+#### Software (Raspberry Pi 5)
+```bash
+# 1. Flash Ubuntu 24.04 (Raspberry Pi Imager), enable SSH
+# 2. Install ROS 2 Jazzy (deb packages): https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html
+sudo apt install ros-jazzy-cv-bridge python3-opencv python3-lgpio
+# 3. Vendor workspace (HiWonder ros_robot_controller + msgs) and the STL-19P LiDAR driver
+#    [COMPLETAR: exact repo/branch and build commands used on our Pi]
+# 4. Clone and run
+git clone https://github.com/ilovmangos/Robotek-WRO2026.git
+cd Robotek-WRO2026
+source /opt/ros/jazzy/setup.bash
+source ~/ros2_ws/install/setup.bash           # workspace with the vendor packages
+ros2 launch <lidar_package> <lidar_launch>.py &  # [COMPLETAR] publishes /scan
+ros2 run usb_cam usb_cam_node_exe &              # publishes /usb_cam/image_raw
+cd src/open     && python3 robot_node.py         # Open Challenge
+cd src/obstacle && python3 robot_node.py         # Obstacle Challenge
+```
+Press the RRC Lite user button: 4 s gyro calibration (keep the car still), then it drives. Press again to stop.
+
+> Rules 9.10 / 9.11 (2026): only one switch powers the vehicle on, then it waits for the start signal - exactly this procedure. Rule 11.10: Wi-Fi / Bluetooth must be turned off during rounds (SSH is only for preparation).
+
+### Pre-run checklist
+- [ ] Battery >= 8.0 V, cables tight, wheels rotate freely
+- [ ] `ros2 topic hz /scan` ~10 Hz, `/ros_robot_controller/imu_raw` ~50 Hz, camera image visible
+- [ ] LED ring on; HSV test on a saved frame at the venue
+- [ ] Car standing still on the start section (gyro calibration)
+- [ ] `config.py` values match the track width (1000 vs 600 mm)
+
+### Testing workflow
+See [`docs/test-log.md`](docs/test-log.md): every test = date, version, parameter changed, 10 runs per direction, success rate, lap time, notes. Pure logic in `control.py` can be run on a PC without the robot (`python3 -c "import control"` after adding a fake `config`).
+
+### Versioning and release notes
+* Hardware versions V1-V12 are in the README and [`v-photos/vehicle-versions`](v-photos/vehicle-versions/README.md).
+* Software and documentation changes are in [`CHANGELOG.md`](CHANGELOG.md). Tag the competition snapshot: `git tag v2026-final` and publish a GitHub Release.
+
+### Competition rule checklist for the repository (WRO 2026 Game Rules, ch. 7 / App. C)
+| Requirement | Where |
+|---|---|
+| README.md >= 5000 characters, English | `README.md` |
+| Photos of vehicle (6 sides) + team photo | `v-photos/`, `t-photos/` |
+| YouTube link per challenge, >= 30 s of autonomous driving | `videos/README.md` |
+| >= 3 meaningful commits (1st >= 2 months, 2nd >= 1 month, 3rd >= 2 weeks before the event; 1st must contain >= 1/5 of final code). **The 3rd commit is the one used to score the documentation; later changes may not count** | git history |
+| Repository link submitted at least 3 weeks before the event (organizers announce date and time) | confirm with the coach |
+| Public repository for >= 12 months after the event | GitHub settings |
+| Code comments | `src/` |
+| Engineering journal (PDF or similar) + GitHub; hard copy at the international final | print `README.md` + `docs/` |
 
 ## 12. Performance Videos 
 
