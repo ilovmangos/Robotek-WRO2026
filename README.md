@@ -23,41 +23,18 @@ We are Renkay, a team of three students participating at the 2026 World Robot Ol
 ---
 
 # 📮 Table of Contents
-1. [About the Competition](about-the-competition)
-   + [World Robot Olympiad (WRO)](world-robotic-olympiad-(wro))
-   + [Future Engineers Category](future-engineers-category)
-   + [Challenges Overview](challenges-overview)
-2. [Repository Structure](repository-structure)
-3. [Meet the Team!](meet-the-team)
-4. [Vehicle Overview](vehicle-overview)
-   + [General Description of the Car](#general-description-of-the-car)
-   + [Versions of the Car](#versions-of-the-car)
-     
-5. [System Setup](system-setup)
-   + [Operating Environment Overview](#operating-environment-overview)
-   + [Robot Operating System (ROS)](#robot-operating-system-ros-)
-   + [Ubuntu](#ubuntu-)
-   + [Raspberry Pi](#raspberry-pi-)
-     
-6. [Mobility Management](mobility-management)
-   + [Steering System - Ackermann](#steering-system--ackermann)
-   + [Motor and Drivetrain](#motor-and-drivetrain)
-   + [3D Pieces](#3d-pieces)
-   
-7. [Power & Sense Management](#power--sense-management)
-   + [Power Source](#power-source)
-   + [Sensors Integration](#sensors-integration)
-   + [BOM (Bill of Materials)](#bom-bill-of-materials)
-   + [Wiring Diagram](#wiring-diagram)
-
-8. [Obstacle Management](obstacle-management)
-   + [Control Node Structure](#control-node-structure)
-   + [Open Challenge](#open-challenge)
-   + [Obstacle Challenge](#obstacle-challenge)
-     
-9. [Assembly Instructions](#7-assembly-instructions)
-10. [Performance Videos](#8-performance-videos)
-   
+1. [About the Competition](#1-about-the-competition)
+2. [Repository Structure and Documentation Map](#2-repository-structure-and-documentation-map)
+3. [Meet the Team!](#3-meet-the-team)
+4. [Vehicle Overview](#4-vehicle-overview) — [Versions of the car](#versions-of-the-car)
+5. [System Setup](#5-system-setup) — ROS 2, Ubuntu, Raspberry Pi
+6. [Mobility Management](#6-mobility-management) — steering, motor and drivetrain, 3D parts → [full doc](docs/01-mobility-and-mechanical-design.md)
+7. [Power & Sense Management](#7-power--sense-management) — power, sensors, BOM, wiring → [full doc](docs/02-power-and-sensor-architecture.md)
+8. [Obstacle Management](#8-obstacle-management) — software, Open and Obstacle strategy → [full doc](docs/03-software-architecture-and-obstacle-strategy.md)
+9. [Systems Thinking and Engineering Decisions](#9-systems-thinking-and-engineering-decisions) → [full doc](docs/04-systems-thinking-and-engineering-decisions.md)
+10. [Assembly Instructions](#10-assembly-instructions)
+11. [Build, Run and Reproduce](#11-build-run-and-reproduce) → [full doc](docs/05-build-and-reproduce.md)
+12. [Performance Videos](#12-performance-videos)
 
 ---
 
@@ -76,17 +53,27 @@ We participate in the **Future Engineers category**, designed for students aged 
 | <img width="450" alt="Open Challenge" src="https://github.com/user-attachments/assets/4a27ae44-db66-49ba-a908-089bac1b55ff"/> | <img width="450" alt="Obstacle Challenge" src="https://github.com/user-attachments/assets/05564ce7-e8b3-4ec2-8f6c-ba8a3d05d400"/>
 
 
-## 2. Repository Structure
+## 2. Repository Structure and Documentation Map
 
-| Folder | Content |
+| Folder / file | Content |
 |--------|---------|
-| [`t-photos`](t-photos) | Team photos (official one and funny one) |
-| [`v-photos`](v-photos) | Photos of our vehicle (from every side, from top and bottom) |
-| [`videos`](videos) | Demonstration video links of the robot in the challenges |
-| [`schemes`](schemes) | Wiring diagram with pins and electronic components |
-| [`src`](src) | Code of the robotic vehicle system |
-| [`models`](models) | 3D printed parts and other chassis pieces |
+| [`docs`](docs) | Detailed documentation, one file per evaluation criterion + [test log](docs/test-log.md) |
+| [`src`](src) | ROS 2 code: [`open`](src/open) and [`obstacle`](src/obstacle) challenge nodes |
+| [`models`](models) | 3D-printed / laser-cut parts (STL + preview + notes) |
+| [`schemes`](schemes) | Wiring, power, ROS node diagrams and flowcharts |
+| [`t-photos`](t-photos) | Team photos (official and funny) |
+| [`v-photos`](v-photos) | Vehicle photos (6 sides, 3D renders, all versions) |
+| [`videos`](videos) | YouTube links, one per challenge |
 | [`other`](other) | Extra documentation |
+| [`CHANGELOG.md`](CHANGELOG.md) | Release notes of the car, code and docs |
+
+| If you want to know about... | Read |
+|---|---|
+| Chassis, steering, motor, torque/speed | [docs/01](docs/01-mobility-and-mechanical-design.md) |
+| Power budget, sensors, calibration, wiring | [docs/02](docs/02-power-and-sensor-architecture.md) |
+| Code modules, state machine, algorithms | [docs/03](docs/03-software-architecture-and-obstacle-strategy.md) |
+| Why we chose each part, iterations, risks | [docs/04](docs/04-systems-thinking-and-engineering-decisions.md) |
+| How to rebuild and run the car | [docs/05](docs/05-build-and-reproduce.md) |
 
 ## 3. Meet the Team!
 
@@ -162,12 +149,12 @@ Our autonomous vehicle is built to take on both the Open and Obstacle Challenges
 | :--: | :--: |:--: |  
 | <img src="https://github.com/user-attachments/assets/1b9fdaee-b758-47dd-b572-509e3d5af35e" width="90%" /> | <img src="https://github.com/user-attachments/assets/19fba1bd-56ff-441b-8411-ddadb8295040" width="90%" /> |  <img src="https://github.com/user-attachments/assets/e8d83c7d-673f-43ad-bcc0-ec78e74bc9e3" width="90%" /> | 
 > [!NOTE]
-> 📸 Visit our [`v-photos`](https://github.com/vania020/wro2025-robotek/tree/main/v-photos) folder for more detailed photos of the car
+> 📸 Visit our [`v-photos`](v-photos) folder for more detailed photos of the car
 
 
 
 ### **<ins>Versions of the Car</ins>**
-Our vehicle has gone through **10 versions** (and since we are always improving, there are still more to come). It all started with a cardboard prototype, then moved on to acrylic and metal chassis designs, and later, we made personalized adjustments to a HiWonder kit. Along the way, we also experimented with different wheel designs, repositioned components, tested sensors like LiDAR, and finally adopted a new operating environment with ROS and Ubuntu.
+Our vehicle has gone through **12 versions** (and since we are always improving, there are still more to come). It all started with a cardboard prototype, then moved on to acrylic and metal chassis designs, and later, we made personalized adjustments to a HiWonder kit. Along the way, we also experimented with different wheel designs, repositioned components, tested sensors like LiDAR, and finally adopted a new operating environment with ROS and Ubuntu.
 
 <table>  
   <tr>
@@ -303,14 +290,24 @@ We removed the LiDAR housing because, after testing the robot multiple times, we
     <td align="center"><img src="https://github.com/user-attachments/assets/deba8088-32d4-4846-b635-17d4c11e2836" width="330" height="450"/>
     </td>
     <td>
-      <br> <b>Car dimensions:</b> N x N x N cm <br><br> 
+      <br> <b>Car dimensions:</b> [COMPLETAR] x [COMPLETAR] x [COMPLETAR] cm <br><br> 
 We noticed that the room lights were affecting our color detection, so we added a 16-LED WS2812 RGB ring light (5V) to keep the lighting consistent. We also moved the LiDAR again. We printed a new housing and placed it at the front, right under the chassis, an adjustment that significantly improved wall detection.
 Finally, we replaced the old L298N motor driver with a TB6612FNG. This made a big difference because we can now control the speed more smoothly, starting at around 35%, and we have much better control when reversing and stopping.
 <br><br>
-  <a href="v-photos/vehicle-versions/README.md#version-10">➡️ See more photos 🚗</a><br><br>
+  <a href="v-photos/vehicle-versions/README.md#version-11">➡️ See more photos 🚗</a><br><br>
     </td>
   </tr>
   
+
+  <!-- Version 12 -->
+  <tr>
+    <td align="center"><i>Version N°12 (current)</i></td>
+    <td align="center">[COMPLETAR: photo]</td>
+    <td>
+      <br> We <b>removed the external motor driver</b>. The drive motor is now the encoder motor of the HiWonder kit, connected to the RRC Lite controller, which runs a closed-loop speed PID using the encoder. The speed is repeatable regardless of battery level and we have fewer wires and parts.<br><br>
+      <b>Car dimensions:</b> [COMPLETAR] cm &nbsp; <b>Result:</b> [COMPLETAR: lap time / success rate]<br><br>
+    </td>
+  </tr>
 </table>
 
 
@@ -483,7 +480,7 @@ We realized that the servo needed to be repositioned. First, it was placed horiz
   <img src="https://github.com/user-attachments/assets/f636176b-af6a-4b72-bb31-53f025ab41b1" width="70%">
 </p>
 
-The drivetrain of our autonomous car is powered by a **25 mm metal gear DC motor**, chosen for its compact size and high torque. The motor is mounted on the chassis and directly connected to the rear axle through a system of gears, ensuring efficient transfer of power to the wheels.  
+The drivetrain of our autonomous car is powered by the **encoder gear motor of the HiWonder kit**, chosen for its compact size, high torque and built-in Hall encoder. The motor is mounted on the chassis and directly connected to the rear axle through a system of gears, ensuring efficient transfer of power to the wheels.  
 
 Our drivetrain includes a gear system:  
 - The large gear is mounted on the motor shaft.  
@@ -500,7 +497,9 @@ During assembly, we noticed a gap between the metal chassis part and the axle su
   <img src="https://github.com/user-attachments/assets/6c35f5b0-4c04-4e40-a79d-c3ad8ee8d3b9" width="50%">
 </p>
 
-#### **Motor Driver Upgrade & Mobility Improvements**
+#### **Motor control history: L298N -> TB6612FNG -> encoder motor (current)**
+> **Current (V12):** no external driver; speed is controlled in closed loop by the RRC Lite using the motor encoder. The text below documents the earlier steps and why we kept improving.
+
 For this year's vehicle, we implemented a critical upgrade to our motor driver to resolve severe mobility issues. In our previous version, when the car's speed was reduced to 50% or lower, it would stop completely. The motor lacked the necessary force to overcome ground friction, a problem worsened by the overall weight of the car. 
 
 By changing the driver, we have achieved a significant improvement in mobility management:
@@ -509,7 +508,7 @@ By changing the driver, we have achieved a significant improvement in mobility m
 - **Precision Braking:** We can now brake and stop the vehicle with much higher accuracy.
 
 #### **Speed Configuration**
-Through rigorous testing, we established specific speed configurations to optimize our sensor's performance. For the **Open Challenge**, we decided to cap the maximum speed at **70%** instead of running at 100%. This controlled speed ensures that the LiDAR sensor has enough processing time to accurately detect walls, preventing crashes and maintaining a reliable trajectory throughout the laps.
+Through rigorous testing, we established specific speed configurations to optimize our sensor's performance. For the **Open Challenge**, we decided to cap the maximum speed below 100% (see `MOTOR_CRUISE_PCT` in `src/open/config.py`; **[COMPLETAR: confirm final value]**). This controlled speed ensures that the LiDAR sensor has enough processing time to accurately detect walls, preventing crashes and maintaining a reliable trajectory throughout the laps.
 
 
 ---
@@ -584,7 +583,7 @@ Below, you will find a table with our 3D-printed parts and their descriptions.
 </p>
 
 
-Our autonomous car is powered by 7.4V Li-Po batteries (2000mAh, 20C). We chose Li-Po batteries because they provide a high energy density, meaning more power in a small and lightweight package. The battery provides two main energy lines: one for the electronics and another for the motor: <br>
+Our autonomous car is powered by a 7.4 V (2S) Li-Po battery (**[COMPLETAR: capacity - the BOM lists 5000 mAh 20C]**). We chose Li-Po batteries because they provide a high energy density, meaning more power in a small and lightweight package. The battery provides two main energy lines: one for the electronics and another for the motor: <br>
 
 1. **Electronics & Sensors**  
    The battery first connects to the **RRC Lite Controller**, which regulates the power down to a safe **5 V**.  
@@ -593,9 +592,8 @@ Our autonomous car is powered by 7.4V Li-Po batteries (2000mAh, 20C). We chose L
    - **Digital servomotor** → controls the Ackermann steering system.  
    - **STL-19P TOF LiDAR & monocular camera** → provide vision and distance perception.  
 
-2. **Drive Motor (via L298N Motor Driver)**  
-   In parallel, the battery also powers the **L298N motor driver** directly with **7.4 V**.  
-   This driver regulates how much current goes to the **25 mm metal DC motor**, which is responsible for moving the car forward.  
+2. **Drive Motor (encoder motor on the RRC Lite)**  
+   The same battery feeds the **motor port of the RRC Lite** directly with battery voltage. The controller reads the motor's **Hall encoder** and runs a closed-loop speed PID, so the car keeps the commanded speed as the battery discharges. There is **no external motor driver** any more.  
 
 By splitting the power into two paths (one regulated for sensitive electronics and one direct for the motor), the system ensures stability. Motors usually demand sudden spikes of current, and separating their supply avoids crashes or interruptions in the Raspberry Pi and sensors.
 
@@ -633,7 +631,7 @@ Unlike simpler sensors such as ultrasonic or infrared, which measure only in a s
 
 > [!IMPORTANT]
 > **📍Placement:**
-> For this version, we decided to lower the LiDAR In our previous design, a higher placement caused the sensor to occasionally look over the walls, missing the track boundaries or detecting noise outside the field. By lowering it, the LiDAR now aligns perfectly with the 10 cm high walls of the track. This guarantees a clear, reliable view of the limits and obstacles. All other components on the car were carefully arranged below this level to avoid blocking the LiDAR’s line of sight. <br><br>
+> In V11 we mounted the LiDAR at the front, right under the chassis plate. In earlier designs, a higher placement caused the sensor to occasionally look over the walls, missing the track boundaries or detecting noise outside the field. At this height the LiDAR aligns well with the 10 cm high walls of the track. This guarantees a clear, reliable view of the limits and obstacles. All other components on the car were carefully arranged below this level to avoid blocking the LiDAR’s line of sight. <br><br>
   
 ### <ins>**2DOF Monocular Camera**</ins>
 
@@ -660,10 +658,10 @@ The 2DOF Monocular Camera complements the LiDAR by adding visual perception. Thi
 | STL-19P TOF Lidar | 1 | Provides precise, 360-degree distance measurements for real-time navigation and obstacle detection in dynamic environments. | <img width="250" alt="Lidar" src="https://github.com/user-attachments/assets/a8cece7d-a10f-465d-8982-c96919f8e1bd" /> |
 | Lidar Adapter Board | 1 | Converts the LiDAR’s UART signals to USB for PC connection and data reading. | <img width="250" alt="Adapter" src="https://github.com/user-attachments/assets/c6bdca97-f5a3-4a1e-b0ee-6b4bda3a2ee1" /> |
 | 15 kg.cm Digital Servo | 1 | Provides accurate steering control. | <img width="250" alt="Servo" src="https://github.com/user-attachments/assets/14a9ca9e-b206-44cb-9bdd-cd3c675e7abc" /> |
-| 25MM Metal Gear Motor | 1 | Core drive motor for powering the wheels with torque and speed. | <img width="250" alt="Motor" src="https://github.com/user-attachments/assets/e6695af1-8bcd-48a0-8b6f-802e3145f1be" /> |
+| Encoder gear motor (HiWonder kit) | 1 | Core drive motor with Hall encoder; speed controlled in closed loop by the RRC Lite. | <img width="250" alt="Motor" src="https://github.com/user-attachments/assets/e6695af1-8bcd-48a0-8b6f-802e3145f1be" /> |
 | Suitcase Wheel Protector | 4 | Ensures 3d-printed wheels stability and grip on the floor. | <img width="250" alt="tire" src="https://github.com/user-attachments/assets/cbca9bf3-6264-49e9-9e0d-0eec7d5ae6ef" /> |
 | Monocular Camera | 1 | A camera used for capturing images and videos, can be used for computer vision or live streaming. | <img width="250" alt="Camera" src="https://github.com/user-attachments/assets/b280e148-f627-4687-9174-b62485a19662" /> |
-| TB6612FNGm Motor Driver | 1 | Controls motor direction and speed from the Raspberry Pi. | <img width="250" alt="Motor Driver" src="https://github.com/user-attachments/assets/67e06fc8-39aa-4951-a008-c2fbcb4ed46c" /> |
+| ~~TB6612FNG Motor Driver~~ (removed in V12) | 0 | Replaced by the encoder channel of the RRC Lite. | <img width="250" alt="Motor Driver" src="https://github.com/user-attachments/assets/67e06fc8-39aa-4951-a008-c2fbcb4ed46c" /> |
 | Jumper Cables | 4–8 | Electrical connections between the motor driver and Pi. | <img width="250" alt="Jumper Cables" src="https://github.com/user-attachments/assets/e1c2d347-97a2-4d19-bac0-bf0af226dfde" /> |
 | USB-USB Cable | 1 | A cable to connect the Raspberry Pi to the camera, Lidar, and Controller. | <img width="250" alt="USB Cable" src="https://github.com/user-attachments/assets/8f95630d-fcd1-4340-b176-5e16c1988f18" /> |
 | Li-Po Battery 7.4 V 5000mAh 20C | 1 | A lithium polymer battery that provides portable, high-density power. | <img width="250" alt="Battery" src="https://github.com/user-attachments/assets/452710d7-b1f9-4be5-8f41-9b5a35c3246e" /> |
@@ -700,15 +698,15 @@ It also handles communication with the motor driver to send PWM control signals.
 ---
 
 #### **3. Motor Driver and DC Motor**
-The **L298N Motor Driver** is powered directly by the **7.4 V Li-Po battery**.  
-- It regulates both the **speed** and **direction** of the **25 mm metal gear DC motor**.  
+The **encoder gear motor** is connected to the RRC Lite motor port, powered from the **7.4 V Li-Po battery**.  
+- The RRC Lite regulates **speed** (closed loop with the encoder) and **direction**.  
 - The motor then powers the rear axle through a gear reduction system, increasing torque for smoother acceleration.  
 
 ---
 
 #### **4. Power Source**
 The **7.4 V Li-Po battery** supplies energy to the entire system, split into two paths:  
-- **Direct line (7.4 V):** powers the L298N motor driver and DC motor.  
+- **Direct line (7.4 V):** powers the encoder DC motor through the RRC Lite motor port.  
 - **Regulated line (via RRC Lite Controller):** delivers 5 V to the Raspberry Pi, servomotor, and sensors.  
 
 <br>
@@ -720,10 +718,10 @@ This is also a diagram that shows the **electrical wiring** and pin-level connec
 </p>
 
 > [!NOTE]
-> Visit our [`schemes`](https://github.com/vania020/wro2025-robotek/tree/main/schemes) folder to access all of our diagrams and schemes 🔑🚗
+> Visit our [`schemes`](schemes) folder to access all of our diagrams and schemes 🔑🚗
 
 
-## 6. Obstacle Management 
+## 8. Obstacle Management 
 
 ### <ins>**Control Node Structure**</ins>
 
@@ -736,7 +734,7 @@ This table better explains our ROS topics and messages:
 | **LiDAR Node**                          | Publisher          | `/scan`                        | `sensor_msgs/LaserScan`                                            | It sends 360° distance readings from the LiDAR; each value represents how far an obstacle is at a given angle.                                 |
 | **Camera Node**                         | Publisher          | `/obstaculos`                  | `std_msgs/String`                                                  | It publishes the detected obstacle color in a text form: (`rojo`, `verde`, or `ninguno`), which defines how the main controller adjusts the steering setpoint. |
 | **AckerLidar Node** *(Main Controller)* | Central Controller | `/motor_vel`, `/positionServo` | `std_msgs/Float32`, `ros_robot_controller_msgs/SetAckerServoState` | `/motor_vel`: Motor duty cycle (speed %). `/positionServo`: Steering position (PWM in µs) for Ackermann control.                            |
-| **Motor Node**                          | Subscriber         | `/motor_vel`                   | `std_msgs/Float32`                                                 | Receives motor velocity commands from the main controller and translates them into PWM signals for the DC motor driver (L298N).             |
+| **Motor Node**                          | Subscriber         | `/motor_vel`                   | `std_msgs/Float32`                                                 | Legacy node for the old external driver. To be replaced by the RRC Lite motor command - see docs/03.             |
 | **Raspberry Pi 5 Controller Node**      | Subscriber         | `/positionServo`               | `ros_robot_controller_msgs/SetAckerServoState`                     | Executes servo position commands and moves the front wheels to reach the target angle.                                                      |
 | **RRC Controller Button**               | Publisher          | `/button`                      | `ros_robot_controller_msgs/ButtonState`                            | Sends an activation signal when the onboard button is pressed, starting the robot’s control loop.                                           |
 
@@ -767,11 +765,18 @@ A **message type** is like a template that defines **what kind of data** is sent
 
 
 > [!NOTE]
-> If you would like to see a detailed description and explanation of the code behind each node, please visit our [`src`](https://github.com/vania020/wro2025-robotek/tree/main/src) folder 🖥️🚗
+> If you would like to see a detailed description and explanation of the code behind each node, please visit our [`src`](src) folder 🖥️🚗
 > 
 
 ---
 
+
+### **Software at a glance**
+
+Both challenges use the same cascade: the **LiDAR outer loop** (10 Hz) decides the target heading and the **IMU inner loop** (50 Hz) is the only one that writes to the steering servo. State machine: `IDLE -> CALIBRATING (4 s) -> FOLLOWING <-> TURNING -> DONE (3 laps)`. Corners are detected when the front wall is closer than a threshold and one side opens; laps are counted from 4 corners of 90 degrees. Full explanation, parameters, edge cases and test metrics: [docs/03](docs/03-software-architecture-and-obstacle-strategy.md).
+
+> [!WARNING]
+> **Status (to be updated before the final):** the motor command path in `src/*/robot_node.py` still publishes `/motor_vel` for the old driver node; it must publish to the RRC Lite motor command. Parallel parking is not part of the Obstacle state machine yet. See "Known limitations" in docs/03.
 
 ### <ins>**Open Challenge**</ins>
 
@@ -873,7 +878,25 @@ During the Open Challenge, three ROS2 nodes work together in real time:
 
 
 <br><br>
-## 7. Assembly Instructions 
+## 9. Systems Thinking and Engineering Decisions
+
+Full version with risk register and iteration table: [docs/04](docs/04-systems-thinking-and-engineering-decisions.md).
+
+**How the subsystems interact.** The LiDAR (10 Hz) tells the car *where* it is relative to the walls, the IMU (50 Hz) holds *how* it is pointing, the camera tells which side of a pillar to take, and the RRC Lite executes servo and speed commands. Speed is the coupling variable: the faster the car, the less the LiDAR and the camera see per metre, so speed is capped in each challenge.
+
+| Decision | Chosen | Instead of | Why (test evidence) |
+|---|---|---|---|
+| Distance sensing | STL-19P LiDAR | infrared / ultrasonic | IR was noisy and single-direction (V2-V3) |
+| Heading | gyro integration + LiDAR correction | LiDAR only | LiDAR alone is too slow (10 Hz) to damp oscillations |
+| Chassis | laser-cut MDF, single level | aluminium two-level | weight, airflow, speed of modification |
+| Steering | HiWonder linkage + vertical servo | printed rack and pinion + stepper | imprecise teeth; vertical servo gave wider angle |
+| Motor control | **encoder motor via RRC Lite** | L298N, then TB6612FNG | L298N stalled below 50 %; TB6612FNG was still open loop |
+| LiDAR mount | front, under the chassis plate | on top / removed | on top it saw over the 10 cm walls |
+| Colour detection | HSV + LED ring | neural network | two colours, easy to tune at the venue, runs in ms |
+
+**Main risks and mitigations:** colour misdetection (LED ring, 3-frame confirmation), gyro drift (4 s bias calibration), sensor dropouts (time-outs and watchdog stop the motor), low battery (voltage check before each run), mechanical looseness (pre-run checklist).
+
+## 10. Assembly Instructions 
 
 ### **Ackermann System**
 + To build the Ackermann system on the car, first screw the fixed parts that attach the system to the base.
@@ -899,14 +922,26 @@ Finally, install all electronic components, attaching them to their designated h
 
 
 <br><br>
-## 8. Performance Videos 
+## 11. Build, Run and Reproduce
+
+Full instructions: [docs/05](docs/05-build-and-reproduce.md).
+
+1. **Build the car:** cut/print the parts in [`models`](models), assemble following section 10 and wire it following [`schemes`](schemes).
+2. **Prepare the Raspberry Pi 5:** Ubuntu 24.04, ROS 2 Jazzy, the HiWonder `ros_robot_controller` package and the STL-19P LiDAR driver (section 5).
+3. **Run:** launch LiDAR and camera drivers, then `python3 robot_node.py` from `src/open` or `src/obstacle`. Press the RRC Lite button: 4 s gyro calibration (car still), then the car drives; press again to stop.
+4. **Tune:** all parameters are in `config.py` of each challenge; every change is logged in [`docs/test-log.md`](docs/test-log.md).
+5. **Versions:** see [`CHANGELOG.md`](CHANGELOG.md).
+
+> The code of each challenge is split in `config.py` (numbers), `control.py` (pure logic, no ROS), `color_vision.py` (camera, Obstacle only) and `robot_node.py` (ROS 2 node and state machine). Details in [docs/03](docs/03-software-architecture-and-obstacle-strategy.md).
+
+## 12. Performance Videos 
 
 <div align="center">
 
 | Challenge | YouTube Video |
 |----------|----------------|
-| <img width="500" alt="Renkay 2" src="" /> | <a href="https://youtu.be/lE8SPT6_tL0?si=ECjmNy6-T6QCe0LI">Watch on YouTube 🎥</a> |
-| <img width="500" alt="RenkayE 1" src="" /> | <a href="https://youtu.be/DUVe36ZpR18?si=IGmmhTL5FZdeEi8m">Watch on YouTube 🎥</a> |
+| Open Challenge | <a href="https://youtu.be/lE8SPT6_tL0?si=ECjmNy6-T6QCe0LI">Watch on YouTube 🎥</a> |
+| Obstacle Challenge | <a href="https://youtu.be/DUVe36ZpR18?si=IGmmhTL5FZdeEi8m">Watch on YouTube 🎥</a> |
 
 </div>
 

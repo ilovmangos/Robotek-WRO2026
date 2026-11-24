@@ -34,12 +34,12 @@ IDLE --(button)--> CALIBRATING --(4 s)--> FOLLOWING <--> TURNING --(3 laps)--> D
 | `color_vision.py` | HSV red/green block detector (OpenCV). |
 | `control.py` | Pure logic: heading loop, wall follow, block avoidance, corners, laps. |
 | `robot_node.py` | Main node: state machine tying the three sensors together. |
-| `motor_driver.py` | ROS node for the TB6612FNG motor driver (shared with the Open Challenge). |
+| `motor_driver.py` | **Legacy** ROS node for the old external TB6612FNG driver. The car now uses the encoder motor through the RRC Lite; see docs/03. |
 
 ## Running
 
 ```bash
-python3 motor_driver.py    # motor driver
+python3 motor_driver.py    # legacy external driver (not needed with the RRC Lite encoder motor)
 python3 robot_node.py      # main controller
 ```
 
