@@ -107,7 +107,7 @@ Corners are 90 deg each; integrated yaw reaches 360 deg after 4 corners = 1 lap.
 | Item | Status | Action |
 |---|---|---|
 | **Parallel parking (15 pts)** | **Not in the current obstacle state machine** - it ends in DONE after 3 laps | Implement PARK state (coach's step-8 approach: align with the lot, reverse/arc manoeuvre, replan if not parked). Even the simple "parked partly" gives 7 pts |
-| Start from the parking lot (+7 pts) | not implemented | optional |
+| Start from the parking lot (+7 pts) | not implemented | optional; **2026: only awarded if the car also completes at least one full lap** |
 | Motor path | still `/motor_vel` + legacy driver | switch to RRC Lite encoder motor command |
 | Cases the wall-follow logic cannot cover (e.g. pillar next to a corner, pillar in the inner lane after the corner) | **[COMPLETAR - list failures seen in tests]** | compare with the coach's "seat memory" idea |
 

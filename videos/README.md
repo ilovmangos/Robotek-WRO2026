@@ -1,6 +1,6 @@
 # Performance videos
 
-Rule (WRO 2025 General Rules, ch. 7): one YouTube video **per challenge**, public or unlisted-by-link, with **at least 30 seconds of the car driving autonomously**.
+Rule (WRO 2026 Game Rules, ch. 7): one YouTube video **per challenge**, public or unlisted-by-link, with **at least 30 seconds of the car driving autonomously**.
 
 | Challenge | Link | Car version | Date | Notes |
 |---|---|---|---|---|

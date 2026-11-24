@@ -1,13 +1,15 @@
 # Rubric checklist and open items
 
-Based on the *Future Engineers 2026 Documentation Rubric* (5 criteria x 6 points = 30) and the WRO 2025 General Rules. Final: **8 December 2026**.
+Based on the *Future Engineers 2026 Documentation Rubric* (5 criteria x 6 points = 30) and the WRO 2026 Game Rules (Appendix C). Final: **8 December 2026**.
 
-## Commit deadlines (rules ch. 7)
+## Commit deadlines (2026 Game Rules, ch. 7)
 | Commit | Deadline | Status |
 |---|---|---|
 | 1st (>= 1/5 of final code) | 2 months before (8 Oct) | earlier history already exists in this repository |
 | 2nd | 1 month before (8 Nov) | earlier history exists |
-| **3rd** | **2 weeks before = 24 Nov** | **commit this restructure today** |
+| **3rd** | **2 weeks before = 24 Nov** | **this restructure is the 3rd commit. Per the 2026 rules it is mainly used to score the documentation; later changes may not be considered, so make sure everything important is on `main` at this point** |
+
+> Also in 2026: the repository link must be sent **3 weeks before the competition** (date announced by the organizers) - confirm with the coach that it was sent. The documentation is judged with the **Engineering Journal (PDF) + GitHub**, and the hard copy is also required.
 
 ## What earns the top score (6) per criterion, and where it is covered
 | # | Criterion | Needs for 6 points | Covered in | Still missing |

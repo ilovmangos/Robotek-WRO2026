@@ -46,7 +46,7 @@ cd src/obstacle && python3 robot_node.py         # Obstacle Challenge
 ```
 Press the RRC Lite user button: 4 s gyro calibration (keep the car still), then it drives. Press again to stop.
 
-> Rule 9.10/9.11: one switch to power on, one button to start - exactly this procedure.
+> Rules 9.10 / 9.11 (2026): only one switch powers the vehicle on, then it waits for the start signal - exactly this procedure. Rule 11.10: Wi-Fi / Bluetooth must be turned off during rounds (SSH is only for preparation).
 
 ## 5.4 Pre-run checklist
 - [ ] Battery >= 8.0 V, cables tight, wheels rotate freely
@@ -62,13 +62,14 @@ See [`docs/test-log.md`](test-log.md): every test = date, version, parameter cha
 * Hardware versions V1-V12 are in the README and [`v-photos/vehicle-versions`](../v-photos/vehicle-versions/README.md).
 * Software and documentation changes are in [`CHANGELOG.md`](../CHANGELOG.md). Tag the competition snapshot: `git tag v2026-final` and publish a GitHub Release.
 
-## 5.7 Competition rule checklist for the repository (WRO 2025 General Rules, ch. 7 / App. C)
+## 5.7 Competition rule checklist for the repository (WRO 2026 Game Rules, ch. 7 / App. C)
 | Requirement | Where |
 |---|---|
 | README.md >= 5000 characters, English | `README.md` |
 | Photos of vehicle (6 sides) + team photo | `v-photos/`, `t-photos/` |
 | YouTube link per challenge, >= 30 s of autonomous driving | `videos/README.md` |
-| >= 3 commits (1st >= 2 months, 2nd >= 1 month, 3rd >= 2 weeks before the event; 1st must contain >= 1/5 of final code) | git history |
+| >= 3 meaningful commits (1st >= 2 months, 2nd >= 1 month, 3rd >= 2 weeks before the event; 1st must contain >= 1/5 of final code). **The 3rd commit is the one used to score the documentation; later changes may not count** | git history |
+| Repository link submitted at least 3 weeks before the event (organizers announce date and time) | confirm with the coach |
 | Public repository for >= 12 months after the event | GitHub settings |
 | Code comments | `src/` |
-| Hard copy at the international final | print `README.md` + `docs/` |
+| Engineering journal (PDF or similar) + GitHub; hard copy at the international final | print `README.md` + `docs/` |

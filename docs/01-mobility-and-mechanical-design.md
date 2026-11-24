@@ -5,13 +5,15 @@
 
 ## 1.1 Design goals and constraints
 
-| Constraint (WRO 2025 General Rules) | Consequence for the design |
+| Constraint (WRO 2026 Game Rules) | Consequence for the design |
 |---|---|
-| Rule 9.17: vehicle must not exceed 300 x 200 mm footprint and 300 mm height | Compact single-level layout, 15 x 18 x 16 cm body (V10) |
-| Drive wheels must be physically connected (e.g. gearbox); one motor per side is not allowed | One motor + gear train to a single rear axle; steering with an Ackermann linkage on the front wheels |
-| One button to turn on, another to start the program | RRC Lite power switch + onboard user button (`/ros_robot_controller/button`) |
+| Rule 11.1: vehicle must not exceed 300 x 200 mm footprint and 300 mm height | Compact single-level layout, 15 x 18 x 16 cm body (V10) |
+| Rule 11.2: weight must not exceed 1.5 kg | Light MDF base and printed housings; **[COMPLETAR: measured mass in g]** |
+| Rule 11.3: 4 wheels, one driving axle and one steering actuator; differential-drive bases are disqualified. Rule 11.4: no omnidirectional/ball-caster wheels | Ackermann front steering with one servo, rear axle driven |
+| Rules 11.5 / 11.13: no electronic differential with one motor per side; at most two driving motors, connected to the axle directly or through gears | One motor + gear train to a single rear axle |
+| Rules 9.10 / 9.11: only one switch turns the vehicle on, then it waits for a start signal | RRC Lite power switch + onboard user button (`/ros_robot_controller/button`) |
 | Track border distance is 1000 mm or 600 mm (+-100 mm) in the Open Challenge, always 1000 mm in the Obstacle Challenge; walls 10 cm high | LiDAR must sit at wall height (< 10 cm) and the car must turn inside a 600 mm corridor |
-| Parking lot: 20 cm wide, 1.5 x robot length long; parallel parking scores 15 points, partial 7 | Short wheelbase and large steering angle required |
+| Parking lot: 20 cm wide, 1.5 x robot length long. Fully parked = inside the lot and parallel (distance of the two wheels on one side to the wall differs by <= 2 cm): 15 points; partly parked: 7 | Short wheelbase and large steering angle required |
 | Rounds last 3 minutes | Speed profile tuned for 3 laps well below that limit (28 s in Open at V10) |
 
 ## 1.2 Chassis
